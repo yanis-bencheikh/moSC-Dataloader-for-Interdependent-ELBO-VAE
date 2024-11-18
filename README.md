@@ -12,7 +12,7 @@
 ---
 
 ### **Introduction**
-This project involves processing and analyzing multi-modal single-cell datasets to enable advanced machine learning applications. Currently, we have datasets related to **RNA sequencing (GEX)** and **chromatin accessibility sequencing (ATAC-seq)** derived from the **Multiome protocol**. These datasets are designed to facilitate predictions, alignments, and representations of cellular states. Each dataset is integrated with custom-built DataLoaders to allow seamless interaction with PyTorch models.
+This project involves processing and analyzing multi-modal single-cell datasets to enable advanced machine learning applications. Currently, we have datasets related to **RNA sequencing (GEX)**, **chromatin accessibility sequencing (ATAC-seq)**, and **CITE-seq** (simultaneous RNA and protein profiling). These datasets are designed to facilitate predictions, alignments, and representations of cellular states. Each dataset is integrated with custom-built DataLoaders to allow seamless interaction with PyTorch models.
 
 ---
 
@@ -48,82 +48,62 @@ This project involves processing and analyzing multi-modal single-cell datasets 
   - `pseudotime_order_ATAC`: Developmental trajectory ordering.
   - `batch`: The batch and site identifiers (e.g., `s1d1` for Site 1, Donor 1).
 
+#### **1.3 CITE-seq Data**
+- **Data Source**: Joint RNA and protein profiling using 10X Genomics Single Cell Gene Expression and BioLegend TotalSeq™-B Universal Cocktail.
+- **Modality**: RNA (GEX) and Protein (ADT) measurements.
+- **File Format**: Dense matrices stored in H5AD files.
+- **Key Features (Available in Metadata)**:
+  - Gene expression values.
+  - Protein marker abundance across 134 cell-surface proteins.
+  - CLR-normalized protein counts for downstream analyses.
+  - Batch effects captured via multi-site and multi-donor data collection.
+  - Cell type annotations and pseudotime orders specific to protein and RNA modalities.
+
 ---
 
 ### **2. Functional DataLoaders**
 
 #### **2.1 Multiome GEX DataLoader**
-- **Initialization Output**:
-  - Dense matrix for GEX found locally.
-  - Batch sizes and shuffling supported.
-- **Sample Output**:
-  ```plaintext
-  Batch 0:
-  Data Shape: torch.Size([32, 129921])
-  Metadata Sample:
-  {
-    'GEX_pct_counts_mt': tensor([...]),
-    'GEX_n_counts': tensor([...]),
-    'GEX_n_genes': tensor([...]),
-    'cell_type': ['CD4+ T', 'B1 B', ...],
-    ...
-  }
-  ```
-- **Utility**:
-  - Enables training of models to predict RNA expression profiles.
-  - Useful for tasks such as cell clustering, developmental trajectory inference, and transcriptomic prediction.
+- **Utility**: Predict RNA expression profiles, analyze cell clustering, and infer transcriptomic trends.
 
 #### **2.2 Multiome ATAC DataLoader**
-- **Initialization Output**:
-  - Dense matrix for ATAC found locally.
-  - Batch sizes and shuffling supported.
-- **Sample Output**:
-  ```plaintext
-  Batch 0:
-  Data Shape: torch.Size([32, 129921])
-  Metadata Sample:
-  {
-    'ATAC_nCount_peaks': tensor([...]),
-    'reads_in_peaks_frac': tensor([...]),
-    'nucleosome_signal': tensor([...]),
-    'cell_type': ['NK', 'CD14+ Mono', ...],
-    ...
-  }
-  ```
+- **Utility**: Predict chromatin accessibility and infer transcription factor binding profiles.
+
+#### **2.3 CITE-seq DataLoader**
 - **Utility**:
-  - Enables training of models to predict chromatin accessibility profiles.
-  - Useful for tasks such as peak accessibility prediction, transcription factor binding inference, and epigenetic state modeling.
+  - Joint training across RNA and protein modalities.
+  - Supports predictive modeling tasks for proteomic markers from transcriptomic profiles and vice versa.
+  - Enables downstream analyses such as cell-type annotation and latent embedding generation.
 
 ---
 
 ### **3. Task Design**
 
 #### **Predictive Modeling**
-- **Goal**: Use one modality (e.g., GEX) to predict another modality (e.g., ATAC).
+- **Goal**: Predict one modality (e.g., RNA) from another (e.g., protein).
 - **Applications**:
-  - Uncover relationships between RNA expression and chromatin accessibility.
-  - Infer chromatin state from transcriptomic data.
+  - Model RNA-to-protein translation and transcriptional regulation.
+  - Augment value in datasets with missing modalities.
 
 #### **Alignment Tasks**
-- **Goal**: Match cells profiled in different modalities to create a unified representation.
+- **Goal**: Map cellular profiles across RNA and protein spaces.
 - **Applications**:
-  - Map RNA-seq and ATAC-seq data for shared cellular states.
-  - Identify cross-modal relationships in biological conditions.
+  - Unify RNA and protein annotations for cellular states.
+  - Link single-modality datasets using CITE-seq as ground truth.
 
 #### **Latent Representation Learning**
-- **Goal**: Integrate GEX and ATAC into unified embeddings to study cellular states and transitions.
+- **Goal**: Integrate RNA, protein, and chromatin data into shared embeddings.
 - **Applications**:
-  - Reduce dimensionality of multi-modal data for visualization and clustering.
-  - Learn shared features for downstream classification tasks.
+  - Study cellular differentiation and developmental trajectories.
+  - Perform clustering and downstream classification tasks.
 
 ---
 
 ### **4. Key Considerations**
+- **Challenges**:
+  - High dimensionality and sparsity in multi-modal datasets require robust model design.
 - **DataLoader Workflow**:
-  - DataLoaders pull from dense matrices (pre-stored as `.h5` files) for efficient loading.
-  - Metadata is directly aligned with feature matrices to avoid indexing errors.
-- **Preprocessing**:
-  - GEX: Log-normalized expression values stored in `adata.X`.
-  - ATAC: Binarized accessibility data stored in `adata.X`.
+  - DataLoaders interact with dense matrices stored in `.h5ad` format.
+  - Metadata is directly aligned with feature matrices to maintain consistency across modalities.
 
-For further details, consult the accompanying preprocessing scripts and documentation in this repository.
+For further details, consult the accompanying documentation in this repository.
