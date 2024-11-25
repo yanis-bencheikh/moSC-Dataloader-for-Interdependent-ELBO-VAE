@@ -79,31 +79,36 @@ This project involves processing and analyzing multi-modal single-cell datasets 
 
 ### **3. Task Design**
 
-#### **Predictive Modeling**
-- **Goal**: Predict one modality (e.g., RNA) from another (e.g., protein).
+#### **Predictive Modeling with ATAC-seq**
+- **Goal**: Reconstruct denoised chromatin accessibility profiles (ATAC-seq peaks) from raw counts using convolutional encoders.
+- **Relevance**:
+  - Chromatin accessibility profiles are inherently structured by genomic loci, making convolutional neural networks (CNNs) a natural choice for feature extraction and pattern detection.
+  - Convolutions can effectively model both local and long-range dependencies by using dilated convolutions or wide kernels.
 - **Applications**:
-  - Model RNA-to-protein translation and transcriptional regulation.
-  - Augment value in datasets with missing modalities.
+  - **Feature Interpretation**: Identify patterns in chromatin accessibility associated with transcription factor binding or regulatory elements.
+  - **Denoising**: Predict clean, normalized peak accessibility profiles for downstream analyses.
+  - **Latent Representation**: Learn biologically meaningful embeddings of chromatin states for clustering or trajectory inference.
 
 #### **Alignment Tasks**
-- **Goal**: Map cellular profiles across RNA and protein spaces.
+- **Goal**: Align chromatin profiles across batches, donors, or experimental conditions.
 - **Applications**:
-  - Unify RNA and protein annotations for cellular states.
-  - Link single-modality datasets using CITE-seq as ground truth.
+  - Normalize chromatin accessibility data while preserving biological signal.
+  - Compare regulatory landscapes across cell types or conditions.
 
 #### **Latent Representation Learning**
-- **Goal**: Integrate RNA, protein, and chromatin data into shared embeddings.
+- **Goal**: Extract shared embeddings for chromatin profiles that capture regulatory activity across genomic regions.
 - **Applications**:
-  - Study cellular differentiation and developmental trajectories.
-  - Perform clustering and downstream classification tasks.
+  - Integrate ATAC-seq data with RNA-seq or other modalities.
+  - Infer transcription factor activity and gene regulatory networks.
 
 ---
 
 ### **4. Key Considerations**
 - **Challenges**:
-  - High dimensionality and sparsity in multi-modal datasets require robust model design.
-- **DataLoader Workflow**:
-  - DataLoaders interact with dense matrices stored in `.h5ad` format.
-  - Metadata is directly aligned with feature matrices to maintain consistency across modalities.
+  - Chromatin accessibility data is highly sparse and high-dimensional, requiring robust encoders like CNNs to capture meaningful signals.
+  - Long-range regulatory dependencies necessitate models capable of expanding receptive fields, such as dilated or multi-scale convolutions.
+- **Approach**:
+  - Use **convolutional encoders** with dilated convolutions to balance local feature extraction and global context.
+  - Incorporate pooling or attention mechanisms to reduce dimensionality without losing important biological signals.
 
 For further details, consult the accompanying documentation in this repository.
